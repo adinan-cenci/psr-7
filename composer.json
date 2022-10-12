@@ -1,0 +1,11 @@
+{
+    "name": "adinancenci/psr-7",
+    "autoload": {
+        "psr-4": {
+            "Adinancenci\\Psr7\\": "src/"
+        }
+    },
+    "require": {
+        "psr/http-message": "^1.0"
+    }
+}
