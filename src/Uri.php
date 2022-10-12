@@ -7,6 +7,8 @@ class Uri implements UriInterface
 {
     protected $scheme = '';
 
+    protected $path = '';
+
     protected $port = null;
 
     protected static $standardPorts = [
@@ -46,6 +48,17 @@ class Uri implements UriInterface
         }
 
         return $port;
+    }
+
+    public function getPath() 
+    {
+        if (empty($this->path)) {
+            return '';
+        }
+
+        // Straight up stolen from slimphp/Slim-Psr7
+        // Do not encode \w, _, -, & etc nor % encoded characters.
+        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/', $this->path);
     }
 
     public static function isStandardPort(int $port, string $scheme) : bool
