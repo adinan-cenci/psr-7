@@ -61,4 +61,14 @@ class Uri implements UriInterface
             ? self::$standardPorts[$scheme]
             : 0;
     }
+
+    protected function urlEncode(string $regex, string $string): string
+    {
+        return preg_replace_callback($regex, function ($match) 
+            {
+                return rawurlencode($match[0]);
+            },
+            $string
+        );
+    }
 }
