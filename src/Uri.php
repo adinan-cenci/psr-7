@@ -29,4 +29,11 @@ class Uri implements UriInterface
             ? self::$standardPorts[$scheme] == $port
             : false;
     }
+
+    public static function getStandardPort(string $scheme) : int
+    {
+        return isset(self::$standardPorts[$scheme])
+            ? self::$standardPorts[$scheme]
+            : 0;
+    }
 }
