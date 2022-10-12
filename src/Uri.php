@@ -7,6 +7,8 @@ class Uri implements UriInterface
 {
     protected $scheme = '';
 
+    protected $port = null;
+
     protected static $standardPorts = [
         'http'  => 80,
         'https' => 443,
@@ -21,6 +23,29 @@ class Uri implements UriInterface
         $scheme = trim($scheme, ':');
         $scheme = strtolower($scheme);
         return $scheme;
+    }
+
+    public function getPort() 
+    {
+        $port = $this->port;
+        $scheme = $this->getScheme();
+
+        if (is_null($port) && empty($scheme)) {
+            return null;
+        }
+
+        if (is_null($port) && !empty($scheme)) {
+            $standard = self::getStandardPort($scheme);
+            return $standard == 0 ? null : $standard;
+        }
+
+        $port = (int) $port;
+
+        if (self::isStandardPort($port, $this->getScheme())) {
+            return null;
+        }
+
+        return $port;
     }
 
     public static function isStandardPort(int $port, string $scheme) : bool
