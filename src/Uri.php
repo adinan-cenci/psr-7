@@ -11,6 +11,8 @@ class Uri implements UriInterface
 
     protected $query = '';
 
+    protected $fragment = '';
+
     protected $port = null;
 
     protected static $standardPorts = [
@@ -83,6 +85,19 @@ class Uri implements UriInterface
         // Also shamelesly stolen from slimphp/Slim-Psr7
         // Do not encode \w, _, - & etc nor % encoded characters.
         return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $query);
+    }
+
+    public function getFragment() 
+    {
+        $fragment = $this->fragment;
+
+        if (empty($fragment)) {
+            return '';
+        }
+
+        // You know the drill by now
+        // Do not encode \w, _, - & etc nor % encoded characters.
+        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $fragment);
     }
 
     public static function getStandardPort(string $scheme) : int
