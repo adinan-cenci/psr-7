@@ -9,6 +9,8 @@ class Uri implements UriInterface
 
     protected $path = '';
 
+    protected $query = '';
+
     protected $port = null;
 
     protected static $standardPorts = [
@@ -66,6 +68,21 @@ class Uri implements UriInterface
         return isset(self::$standardPorts[$scheme])
             ? self::$standardPorts[$scheme] == $port
             : false;
+    }
+
+    public function getQuery() 
+    {
+        $query = $this->query;
+
+        if (empty($query)) {
+            return '';
+        }
+
+        $query = ltrim($query, $query);
+
+        // Also shamelesly stolen from slimphp/Slim-Psr7
+        // Do not encode \w, _, - & etc nor % encoded characters.
+        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $query);
     }
 
     public static function getStandardPort(string $scheme) : int
