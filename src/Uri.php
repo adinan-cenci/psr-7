@@ -7,6 +7,10 @@ class Uri implements UriInterface
 {
     protected $scheme = '';
 
+    protected $username = '';
+
+    protected $password = '';
+
     protected $path = '';
 
     protected $query = '';
@@ -52,6 +56,21 @@ class Uri implements UriInterface
         }
 
         return $port;
+    }
+
+    public function getUserInfo() 
+    {
+        $userInfo = $this->username;
+
+        if (empty($userInfo)) {
+            return '';
+        }
+
+        if (! empty($this->password)) {
+            $userInfo .= ':' . $this->password;
+        }
+
+        return $userInfo;
     }
 
     public function getPath() 
