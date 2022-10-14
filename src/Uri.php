@@ -260,6 +260,15 @@ class Uri implements UriInterface
         return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $query, $this->fragment);
     }
 
+    public function withFragment($fragment) 
+    {
+        if (! is_string($fragment)) {
+            throw new \InvalidArgumentException('Fragment must be a string');
+        }
+
+        return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $fragment);
+    }
+
     public static function isValidHost($host) : bool
     {
         return self::isValidHostName($host) || self::isValidIp($host);
