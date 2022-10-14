@@ -2,10 +2,19 @@
     "name": "adinancenci/psr-7",
     "autoload": {
         "psr-4": {
-            "Adinancenci\\Psr7\\": "src/"
+            "Adinancenci\\Psr7\\": "src/",
+            "AdinanCenci\\Psr7\\Tests\\": "tests/"
         }
     },
     "require": {
         "psr/http-message": "^1.0"
+    },
+    "require-dev": {
+        "php-http/psr7-integration-tests": "^1.1"
+    },
+    "scripts": {
+        "unit-tests": [
+            "./vendor/bin/phpunit tests"
+        ]
     }
 }
