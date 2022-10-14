@@ -31,12 +31,12 @@ class Uri implements UriInterface
 
     public function __construct($scheme = '', $username = '', $password = '', $host = '', $port = null, $path = '', $query = '', $fragment = '') 
     {
-        $this->validateScheme(scheme);
-        $this->validateHost(host);
-        $this->validatePort(port);
-        $this->validatePath(path);
-        $this->validateQuery(query);
-        $this->validateFragment(fragment);
+        $this->validateScheme($scheme);
+        $this->validateHost($host);
+        $this->validatePort($port);
+        $this->validatePath($path);
+        $this->validateQuery($query);
+        $this->validateFragment($fragment);
 
         $this->scheme   = $scheme;
         $this->username = $username;
@@ -50,7 +50,7 @@ class Uri implements UriInterface
 
     public function __toString() 
     {
-        $scheme     = $this->scheme();
+        $scheme     = $this->getScheme();
         $authority  = $this->getAuthority();
         $path       = $this->getPath();
         $query      = $this->getQuery();
@@ -210,7 +210,7 @@ class Uri implements UriInterface
         return new self($scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
-    public function withUserInfo($user, $password = null) 
+    public function withUserInfo($username, $password = null) 
     {
         $password = (string) $password;
 
@@ -274,7 +274,7 @@ class Uri implements UriInterface
             : 0;
     }
 
-    public static function parseString(string $string) : static
+    public static function parseString(string $string) : UriInterface
     {
         $parsed = parse_url($string);
 
@@ -306,7 +306,7 @@ class Uri implements UriInterface
             throw new \InvalidArgumentException('Scheme must be a string');
         }
 
-        if (!empty($scheme) && in_array(strtolower($scheme), array_keys($this->standardPorts))) {
+        if (!empty($scheme) && !in_array(strtolower($scheme), array_keys(self::$standardPorts))) {
             throw new \InvalidArgumentException('Unsupported scheme: ' . $scheme);
         }
 
