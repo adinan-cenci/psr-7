@@ -70,11 +70,11 @@ class Uri implements UriInterface
             $path = preg_replace('#^/{2,}#', '/', $path);
         }
 
-        if ($query) {
+        if ($query != '') {
             $query = '?' . $query;
         }
 
-        if ($fragment) {
+        if ($fragment != '') {
             $fragment = '#' . $fragment;
         }
 
@@ -94,13 +94,8 @@ class Uri implements UriInterface
         $port = $this->port;
         $scheme = $this->getScheme();
 
-        if (is_null($port) && empty($scheme)) {
+        if (is_null($port)) {
             return null;
-        }
-
-        if (is_null($port) && !empty($scheme)) {
-            $standard = self::getStandardPort($scheme);
-            return $standard == 0 ? null : $standard;
         }
 
         $port = (int) $port;
@@ -114,14 +109,17 @@ class Uri implements UriInterface
 
     public function getUserInfo() 
     {
-        $userInfo = $this->username;
+        $username = $this->username;
+        $password = $this->password;
 
-        if (empty($userInfo)) {
+        if ($username == '') {
             return '';
         }
 
-        if (! empty($this->password)) {
-            $userInfo .= ':' . $this->password;
+        $userInfo = $username;
+
+        if ($password != '') {
+            $userInfo = $userInfo . ':' . $password;
         }
 
         return $userInfo;
@@ -131,7 +129,7 @@ class Uri implements UriInterface
     {
         $host = $this->host;
 
-        if (empty($host)) {
+        if ($host == '') {
             return '';
         }
 
@@ -179,11 +177,11 @@ class Uri implements UriInterface
     {
         $query = $this->query;
 
-        if (empty($query)) {
+        if ($query == '') {
             return '';
         }
 
-        $query = ltrim($query, $query);
+        $query = ltrim($query, '?');
 
         // Also shamelesly stolen from slimphp/Slim-Psr7
         // Do not encode \w, _, - & etc nor % encoded characters.
@@ -194,7 +192,7 @@ class Uri implements UriInterface
     {
         $fragment = $this->fragment;
 
-        if (empty($fragment)) {
+        if ($fragment == '') {
             return '';
         }
 
@@ -278,14 +276,14 @@ class Uri implements UriInterface
     {
         $parsed = parse_url($string);
 
-        $scheme     = !empty($parsed['scheme'])   ? $parsed['scheme'] : '';
-        $username   = !empty($parsed['user'])     ? $parsed['user'] : '';
-        $password   = !empty($parsed['pass'])     ? $parsed['pass'] : '';
-        $host       = !empty($parsed['host'])     ? $parsed['host'] : '';
-        $port       = !empty($parsed['port'])     ? (int) $parsed['port'] : NULL;
-        $path       = !empty($parsed['path'])     ? $parsed['path'] : '';
-        $query      = !empty($parsed['query'])    ? $parsed['query'] : '';
-        $fragment   = !empty($parsed['fragment']) ? $parsed['fragment'] : '';
+        $scheme     = isset($parsed['scheme'])   ? $parsed['scheme'] : '';
+        $username   = isset($parsed['user'])     ? $parsed['user'] : '';
+        $password   = isset($parsed['pass'])     ? $parsed['pass'] : '';
+        $host       = isset($parsed['host'])     ? $parsed['host'] : '';
+        $port       = isset($parsed['port'])     ? (int) $parsed['port'] : NULL;
+        $path       = isset($parsed['path'])     ? $parsed['path'] : '';
+        $query      = isset($parsed['query'])    ? $parsed['query'] : '';
+        $fragment   = isset($parsed['fragment']) ? $parsed['fragment'] : '';
 
         return new self($scheme, $username, $password, $host, $port, $path, $query, $fragment);        
     }
