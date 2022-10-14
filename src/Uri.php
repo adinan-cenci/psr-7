@@ -216,6 +216,11 @@ class Uri implements UriInterface
         return new self($this->scheme, $username, $password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
+    public static function isValidHost($host) : bool
+    {
+        return self::isValidHostName($host) || self::isValidIp($host);
+    }
+
     public static function isValidHostName($hostname) : bool
     {
         return (bool) filter_var($hostname, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
