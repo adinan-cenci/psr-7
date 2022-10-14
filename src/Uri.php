@@ -274,6 +274,22 @@ class Uri implements UriInterface
             : 0;
     }
 
+    public static function parseString(string $string) : static
+    {
+        $parsed = parse_url($string);
+
+        $scheme     = !empty($parsed['scheme'])   ? $parsed['scheme'] : '';
+        $username   = !empty($parsed['user'])     ? $parsed['user'] : '';
+        $password   = !empty($parsed['pass'])     ? $parsed['pass'] : '';
+        $host       = !empty($parsed['host'])     ? $parsed['host'] : '';
+        $port       = !empty($parsed['port'])     ? (int) $parsed['port'] : NULL;
+        $path       = !empty($parsed['path'])     ? $parsed['path'] : '';
+        $query      = !empty($parsed['query'])    ? $parsed['query'] : '';
+        $fragment   = !empty($parsed['fragment']) ? $parsed['fragment'] : '';
+
+        return new self($scheme, $username, $password, $host, $port, $path, $query, $fragment);        
+    }
+
     protected function urlEncode(string $regex, string $string): string
     {
         return preg_replace_callback($regex, function ($match) 
