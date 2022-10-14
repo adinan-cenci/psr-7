@@ -31,6 +31,13 @@ class Uri implements UriInterface
 
     public function __construct($scheme = '', $username = '', $password = '', $host = '', $port = null, $path = '', $query = '', $fragment = '') 
     {
+        $this->validateScheme(scheme);
+        $this->validateHost(host);
+        $this->validatePort(port);
+        $this->validatePath(path);
+        $this->validateQuery(query);
+        $this->validateFragment(fragment);
+
         $this->scheme   = $scheme;
         $this->username = $username;
         $this->password = $password;
@@ -198,13 +205,7 @@ class Uri implements UriInterface
 
     public function withScheme($scheme) 
     {
-        if (! is_string($scheme)) {
-            throw new \InvalidArgumentException('Scheme must be a string');
-        }
-
-        if (in_array(strtolower($scheme), array_keys($this->standardPorts))) {
-            throw new \InvalidArgumentException('Unsupported scheme: ' . $scheme);
-        }
+        $this->validateScheme($scheme);
 
         return new self($scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
     }
@@ -218,53 +219,35 @@ class Uri implements UriInterface
 
     public function withHost($host) 
     {
-        if (! is_string($host)) {
-            throw new \InvalidArgumentException('Host must be a string');
-        }
-
-        if (! self::isValidHost($host)) {
-            throw new \InvalidArgumentException('Invalid host: ' . $host);
-        }
+        $this->validateHost($host);
 
         return new self($this->scheme, $this->username, $this->password, $host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
     public function withPort($port) 
     {
-        if (!is_null($port) && !is_int($port)) {
-            throw new \InvalidArgumentException('Port must be null or an integer');
-        }
-
-        if (is_int($port) && ($port < 1 || $port > 65535)) {
-            throw new \InvalidArgumentException('Port must be in the 1 - 65535 range');
-        }
+        $this->validatePort($port);
 
         return new self($this->scheme, $this->username, $this->password, $this->host, $port, $this->path, $this->query, $this->fragment);
     }
 
     public function withPath($path) 
     {
-        if (! is_string($path)) {
-            throw new \InvalidArgumentException('Path must be a string');
-        }
+        $this->validatePath($path);
 
         return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $path, $this->query, $this->fragment);
     }
 
     public function withQuery($query) 
     {
-        if (! is_string($query)) {
-            throw new \InvalidArgumentException('Query must be a string');
-        }
+        $this->validateQuery($query);
 
         return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $query, $this->fragment);
     }
 
     public function withFragment($fragment) 
     {
-        if (! is_string($fragment)) {
-            throw new \InvalidArgumentException('Fragment must be a string');
-        }
+        $this->validateFragment($fragment);
 
         return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $fragment);
     }
@@ -299,5 +282,71 @@ class Uri implements UriInterface
             },
             $string
         );
+    }
+
+    protected function validateScheme($scheme) 
+    {
+        if (! is_string($scheme)) {
+            throw new \InvalidArgumentException('Scheme must be a string');
+        }
+
+        if (!empty($scheme) && in_array(strtolower($scheme), array_keys($this->standardPorts))) {
+            throw new \InvalidArgumentException('Unsupported scheme: ' . $scheme);
+        }
+
+        return true;
+    }
+
+    protected function validateHost($host) 
+    {
+        if (! is_string($host)) {
+            throw new \InvalidArgumentException('Host must be a string');
+        }
+
+        if (!empty($host) && !self::isValidHost($host)) {
+            throw new \InvalidArgumentException('Invalid host: ' . $host);
+        }
+
+        return true;
+    }
+
+    protected function validatePort($port) 
+    {
+        if (!is_null($port) && !is_int($port)) {
+            throw new \InvalidArgumentException('Port must be null or an integer');
+        }
+
+        if (is_int($port) && ($port < 1 || $port > 65535)) {
+            throw new \InvalidArgumentException('Port must be in the 1 - 65535 range');
+        }
+
+        return true;
+    }
+
+    protected function validatePath($path) 
+    {
+        if (! is_string($path)) {
+            throw new \InvalidArgumentException('Path must be a string');
+        }
+
+        return true;
+    }
+
+    protected function validateQuery($query) 
+    {
+        if (! is_string($query)) {
+            throw new \InvalidArgumentException('Query must be a string');
+        }
+
+        return true;
+    }
+
+    protected function validateFragment($fragment) 
+    {
+        if (! is_string($fragment)) {
+            throw new \InvalidArgumentException('Fragment must be a string');
+        }
+
+        return true;
     }
 }
