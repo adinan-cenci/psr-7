@@ -29,6 +29,39 @@ class Uri implements UriInterface
         'imap'  => 993,
     ];
 
+    public function __toString() 
+    {
+        $scheme     = $this->scheme();
+        $authority  = $this->getAuthority();
+        $path       = $this->getPath();
+        $query      = $this->getQuery();
+        $fragment   = $this->getFragment();
+
+        if ($scheme) {
+            $scheme = $scheme . ':';
+        }
+
+        if ($authority) {
+            $authority = '//' . $authority;
+        }
+
+        if ($path && $authority && substr($path, 0, 1) != '/') {
+            $path = '/' . $path;
+        } else if ($path && !$authority) {
+            $path = preg_replace('#^/{2,}#', '/', $path);
+        }
+
+        if ($query) {
+            $query = '?' . $query;
+        }
+
+        if ($fragment) {
+            $fragment = '#' . $fragment;
+        }
+
+        return $scheme . $authority . $path . $query . $fragment;
+    }
+
     public function getScheme() 
     {
         $scheme = (string) $this->scheme;
