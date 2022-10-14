@@ -209,6 +209,13 @@ class Uri implements UriInterface
         return new self($scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
+    public function withUserInfo($user, $password = null) 
+    {
+        $password = (string) $password;
+
+        return new self($this->scheme, $username, $password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
+    }
+
     public static function getStandardPort(string $scheme) : int
     {
         return isset(self::$standardPorts[$scheme])
