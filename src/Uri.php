@@ -198,7 +198,7 @@ class Uri implements UriInterface
 
     public function withScheme($scheme) 
     {
-        if (is_string($scheme)) {
+        if (! is_string($scheme)) {
             throw new \InvalidArgumentException('Scheme must be a string');
         }
 
