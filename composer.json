@@ -2,7 +2,7 @@
     "name": "adinancenci/psr-7",
     "autoload": {
         "psr-4": {
-            "Adinancenci\\Psr7\\": "src/",
+            "AdinanCenci\\Psr7\\": "src/",
             "AdinanCenci\\Psr7\\Tests\\": "tests/"
         }
     },
