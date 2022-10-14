@@ -242,6 +242,15 @@ class Uri implements UriInterface
         return new self($this->scheme, $this->username, $this->password, $this->host, $port, $this->path, $this->query, $this->fragment);
     }
 
+    public function withPath($path) 
+    {
+        if (! is_string($path)) {
+            throw new \InvalidArgumentException('Path must be a string');
+        }
+
+        return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $path, $this->query, $this->fragment);
+    }
+
     public static function isValidHost($host) : bool
     {
         return self::isValidHostName($host) || self::isValidIp($host);
