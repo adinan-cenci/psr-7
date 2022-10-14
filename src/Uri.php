@@ -196,6 +196,19 @@ class Uri implements UriInterface
         return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $fragment);
     }
 
+    public function withScheme($scheme) 
+    {
+        if (is_string($scheme)) {
+            throw new \InvalidArgumentException('Scheme must be a string');
+        }
+
+        if (in_array(strtolower($scheme), array_keys($this->standardPorts))) {
+            throw new \InvalidArgumentException('Unsupported scheme: ' . $scheme);
+        }
+
+        return new self($scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
+    }
+
     public static function getStandardPort(string $scheme) : int
     {
         return isset(self::$standardPorts[$scheme])
