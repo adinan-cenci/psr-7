@@ -216,6 +216,11 @@ class Uri implements UriInterface
         return new self($this->scheme, $username, $password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
+    public static function isValidIp($ip) : bool
+    {
+        return (bool) filter_var($ip, FILTER_VALIDATE_IP);
+    }
+
     public static function getStandardPort(string $scheme) : int
     {
         return isset(self::$standardPorts[$scheme])
