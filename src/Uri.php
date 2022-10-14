@@ -7,19 +7,19 @@ class Uri implements UriInterface
 {
     protected $scheme = '';
 
-    protected $host = '';
-
     protected $username = '';
 
     protected $password = '';
+
+    protected $host = '';
+
+    protected $port = null;
 
     protected $path = '';
 
     protected $query = '';
 
     protected $fragment = '';
-
-    protected $port = null;
 
     protected static $standardPorts = [
         'http'  => 80,
@@ -28,6 +28,18 @@ class Uri implements UriInterface
         'smtp'  => 587,
         'imap'  => 993,
     ];
+
+    public function __construct($scheme = '', $username = '', $password = '', $host = '', $port = null, $path = '', $query = '', $fragment = '') 
+    {
+        $this->scheme   = $scheme;
+        $this->username = $username;
+        $this->password = $password;
+        $this->host     = $host;
+        $this->port     = $port;
+        $this->path     = $path;
+        $this->query    = $query;
+        $this->fragment = $fragment;
+    }
 
     public function __toString() 
     {
