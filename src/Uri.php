@@ -7,6 +7,8 @@ class Uri implements UriInterface
 {
     protected $scheme = '';
 
+    protected $host = '';
+
     protected $username = '';
 
     protected $password = '';
@@ -71,6 +73,17 @@ class Uri implements UriInterface
         }
 
         return $userInfo;
+    }
+
+    public function getHost() 
+    {
+        $host = $this->host;
+
+        if (empty($host)) {
+            return '';
+        }
+
+        return strtolower($host);
     }
 
     public function getPath() 
