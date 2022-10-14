@@ -229,6 +229,19 @@ class Uri implements UriInterface
         return new self($this->scheme, $this->username, $this->password, $host, $this->port, $this->path, $this->query, $this->fragment);
     }
 
+    public function withPort($port) 
+    {
+        if (!is_null($port) && !is_int($port)) {
+            throw new \InvalidArgumentException('Port must be null or an integer');
+        }
+
+        if (is_int($port) && ($port < 1 || $port > 65535)) {
+            throw new \InvalidArgumentException('Port must be in the 1 - 65535 range');
+        }
+
+        return new self($this->scheme, $this->username, $this->password, $this->host, $port, $this->path, $this->query, $this->fragment);
+    }
+
     public static function isValidHost($host) : bool
     {
         return self::isValidHostName($host) || self::isValidIp($host);
