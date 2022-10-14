@@ -86,6 +86,25 @@ class Uri implements UriInterface
         return strtolower($host);
     }
 
+    public function getAuthority() 
+    {
+        $userInfo = $this->getUserInfo();
+        $host = $this->getHost();
+        $port = $this->getPort();
+
+        $authority = $host;
+
+        if ($userInfo) {
+            $authority = $userInfo . '@' . $authority;
+        }
+
+        if ($port) {
+            $authority = $authority . ':' . $port;
+        }
+
+        return $authority;
+    }
+
     public function getPath() 
     {
         if (empty($this->path)) {
