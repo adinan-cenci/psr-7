@@ -5,6 +5,8 @@ use Psr\Http\Message\UriInterface;
 
 class Uri implements UriInterface 
 {
+    use FunctionalInstantiationTrait;
+
     protected $scheme = '';
 
     protected $username = '';
@@ -204,50 +206,43 @@ class Uri implements UriInterface
     public function withScheme($scheme) 
     {
         $this->validateScheme($scheme);
-
-        return new self($scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
+        return $this->instantiate(['scheme' => $scheme]);
     }
 
     public function withUserInfo($username, $password = null) 
     {
         $password = (string) $password;
-
-        return new self($this->scheme, $username, $password, $this->host, $this->port, $this->path, $this->query, $this->fragment);
+        return $this->instantiate(['username' => $username, 'password' => $password]);
     }
 
     public function withHost($host) 
     {
         $this->validateHost($host);
-
-        return new self($this->scheme, $this->username, $this->password, $host, $this->port, $this->path, $this->query, $this->fragment);
+        return $this->instantiate(['host' => $host]);
     }
 
     public function withPort($port) 
     {
         $this->validatePort($port);
-
-        return new self($this->scheme, $this->username, $this->password, $this->host, $port, $this->path, $this->query, $this->fragment);
+        return $this->instantiate(['port' => $port]);
     }
 
     public function withPath($path) 
     {
         $this->validatePath($path);
-
-        return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $path, $this->query, $this->fragment);
+        return $this->instantiate(['path' => $path]);
     }
 
     public function withQuery($query) 
     {
         $this->validateQuery($query);
-
-        return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $query, $this->fragment);
+        return $this->instantiate(['query' => $query]);
     }
 
     public function withFragment($fragment) 
     {
         $this->validateFragment($fragment);
-
-        return new self($this->scheme, $this->username, $this->password, $this->host, $this->port, $this->path, $this->query, $fragment);
+        return $this->instantiate(['fragment' => $fragment]);
     }
 
     public static function isValidHost($host) : bool
@@ -362,5 +357,19 @@ class Uri implements UriInterface
         }
 
         return true;
+    }
+
+    protected function getConstructorParameters() 
+    {
+        return [
+            'scheme'   => $this->scheme,
+            'username' => $this->username,
+            'password' => $this->password,
+            'host'     => $this->host,
+            'port'     => $this->port,
+            'path'     => $this->path,
+            'query'    => $this->query,
+            'fragment' => $this->fragment
+        ];
     }
 }

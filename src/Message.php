@@ -6,6 +6,8 @@ use Psr\Http\Message\StreamInterface;
 
 abstract class Message implements MessageInterface 
 {
+    use FunctionalInstantiationTrait;
+
     protected string $protocolVersion = '1.0';
 
     protected array $headers = [];
@@ -94,13 +96,6 @@ abstract class Message implements MessageInterface
             'headers' => $this->headers, 
             'body' => $this->body
         ];
-    }
-
-    protected function instantiate($parameters) 
-    {
-        $parameters = array_merge($this->getConstructorParameters(), $parameters);
-        $objectReflection = new \ReflectionClass(get_class($this));
-        return $objectReflection->newInstanceArgs($parameters);
     }
 
     protected function validateHeaderName($name) 
