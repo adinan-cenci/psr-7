@@ -21,7 +21,7 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
 
     protected array $uploadedFiles;
 
-    public function __construct(string $protocolVersion = '1.0', array $headers = [], ?StreamInterface $body = null, string $target = '', string $method = 'GET', ?UriInterface $uri = null, array $cookieParams = [], array $queryParams = [], array $attributes = [], $parsedBody = null, array $uploadedFiles = []) 
+    public function __construct(string $protocolVersion = '1.0', array $headers = [], ?StreamInterface $body = null, string $target = '', string $method = 'GET', ?UriInterface $uri = null, array $cookieParams = [], array $queryParams = [], array $attributes = [], $parsedBody = null, array $uploadedFiles = [], array $serverParams = []) 
     {
         $this->validateParsedBody($parsedBody);
 
@@ -31,11 +31,12 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
         $this->attributes    = $attributes;
         $this->parsedBody    = $parsedBody;
         $this->uploadedFiles = $uploadedFiles;
+        $this->serverParams  = $serverParams;
     }
 
     public function getServerParams() 
     {
-        return $_SERVER;
+        return $this->serverParams;
     }
 
     public function getCookieParams() 
