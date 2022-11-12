@@ -16,6 +16,8 @@ abstract class Message implements MessageInterface
 
     public function __construct(string $protocolVersion = '1.0', array $headers = [], ?StreamInterface $body = null) 
     {
+        $this->validateHeaders($headers);
+
         $this->getProtocolVersion = $protocolVersion;
         $this->headers = $headers;
         $this->body = $body;
@@ -96,6 +98,16 @@ abstract class Message implements MessageInterface
             'headers' => $this->headers, 
             'body' => $this->body
         ];
+    }
+
+    protected function validateHeaders(array $headers) 
+    {
+        foreach ($headers as $name => $value) {
+            $this->validateHeaderName($name);
+            $this->validateHeaderValue($value);
+        }
+
+        return true;
     }
 
     protected function validateHeaderName($name) 
