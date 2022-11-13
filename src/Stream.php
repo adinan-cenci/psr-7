@@ -104,17 +104,19 @@ class Stream implements StreamInterface
 
     public function read($length) 
     {
-        return fread($this->resource, $length);
-    }
-
-    public function getContents() 
-    {
         if (! $this->isReadable()) {
             throw new \RuntimeException('Stream is not readable');
         }
 
+        return $length > 0
+            ? fread($this->resource, $length)
+            : '';
+    }
+
+    public function getContents() 
+    {
         $length = $this->getSize();
-        return fread($this->resource, $length);
+        return $this->read($length);
     }
 
     public function getMetadata($key = null) 
