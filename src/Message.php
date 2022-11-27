@@ -18,7 +18,7 @@ abstract class Message implements MessageInterface
     {
         $this->validateHeaders($headers);
 
-        $this->getProtocolVersion = $protocolVersion;
+        $this->protocolVersion = $protocolVersion;
         $this->headers = $headers;
         $this->body = $body;
     }
