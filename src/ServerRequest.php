@@ -114,7 +114,8 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
             'queryParams'   => $this->queryParams,
             'attributes'    => $this->attributes,
             'parsedBody'    => $this->parsedBody,
-            'uploadedFiles' => $this->uploadedFiles
+            'uploadedFiles' => $this->uploadedFiles,
+            'serverParams'  => $this->serverParams
         ];
 
         return $params;
