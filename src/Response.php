@@ -36,6 +36,13 @@ class Response extends Message implements ResponseInterface, MessageInterface
         return $this->reasonPhrase;
     }
 
+    // Not part of the psr7 specification
+    public function withAddedCookie(string $name, string $value, ?int $expires = null, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false) 
+    {
+        $cookie = new Cookie($name, $value, null, $expires, $path, $domain, $secure, $httpOnly);
+        return $this->withAddedHeader('Set-Cookie', (string) $cookie);
+    }
+
     protected function getConstructorParameters() 
     {
         $params = parent::getConstructorParameters();
