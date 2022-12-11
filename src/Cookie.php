@@ -124,6 +124,11 @@ class Cookie
 
     protected function setExpires($expires) 
     {
+        if (is_null($expires)) {
+            $this->expires = $expires;
+            return;
+        }
+
         $this->expires = $expires instanceof \DateTime
             ? clone $expires
             : (new \DateTime())->setTimestamp($expires);
