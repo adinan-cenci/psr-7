@@ -138,7 +138,7 @@ class Cookie
 
     protected function formatExpires($expires) : string 
     {
-        return $expires->format('D, d m Y H:i:s e');
+        return $expires->format('D, d M Y H:i:s e');
     }
 
     protected function validateName(string $name) 
