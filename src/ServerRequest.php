@@ -106,6 +106,88 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
         return $this->instantiate(['attributes' => $attributes]);
     }
 
+    /**
+     * Retrieves post data from the request.
+     * 
+     * Not part of the PSR-7.
+     * 
+     * @param string $name;
+     * @param mixed $default null
+     *   If $name is undefined then $default will be returned.
+     * 
+     * @return mixed
+     */
+    public function post(string $name, $default = null) 
+    {
+        $contentType = $this->getHeaderLine('content-type');
+
+        if (! $contentType) {
+            return $default;
+        }
+
+        if (! in_array($contentType, ['application/x-www-form-urlencoded', 'multipart/form-data', null])) {
+            return $default;
+        }
+
+        return is_array($this->parsedBody) && isset($this->parsedBody[$name])
+            ? $this->parsedBody[$name]
+            : $default;
+    }
+
+    /**
+     * Retrieves query parameters from the request.
+     * 
+     * Not part of the PSR-7.
+     * 
+     * @param string $name;
+     * @param mixed $default null
+     *   If $name is undefined then $default will be returned.
+     * 
+     * @return mixed
+     */
+    public function get(string $name, $default = null) 
+    {
+        return isset($this->queryParams[$name])
+            ? $this->queryParams[$name]
+            : null;
+    }
+
+    /**
+     * Retrieves cookie data from the request.
+     * 
+     * Not part of the PSR-7.
+     * 
+     * @param string $name;
+     * @param mixed $default null
+     *   If $name is undefined then $default will be returned.
+     * 
+     * @return mixed
+     */
+    public function cookie(string $name, $default = null) 
+    {
+        return isset($this->queryParams[$name])
+            ? $this->queryParams[$name]
+            : null;
+    }
+
+    /**
+     * Retrieves server data from the request.
+     * 
+     * Not part of the PSR-7.
+     * 
+     * @param string $name;
+     * @param mixed $default null
+     *   If $name is undefined then $default will be returned.
+     * 
+     * @return mixed
+     */
+    public function server(string $name, $default = null) 
+    {
+        return isset($this->serverParams[$name])
+            ? $this->serverParams[$name]
+            : null;
+    }
+
     protected function getConstructorParameters() 
     {
         $params = parent::getConstructorParameters();
