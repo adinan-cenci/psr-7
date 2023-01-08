@@ -1,5 +1,5 @@
 {
-    "name": "adinancenci/psr-7",
+    "name": "adinan-cenci/psr-7",
     "description": "An implementation of the PSR-7 specification.", 
     "type": "library", 
     "keywords": ["http", "psr", "psr-7"],
