@@ -125,7 +125,9 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
             return $default;
         }
 
-        if (! in_array($contentType, ['application/x-www-form-urlencoded', 'multipart/form-data', null])) {
+        $mime = $this->getMime((string) $contentType);
+
+        if (! in_array($mime, ['application/x-www-form-urlencoded', 'multipart/form-data', ''])) {
             return $default;
         }
 
@@ -186,6 +188,13 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
         return isset($this->serverParams[$name])
             ? $this->serverParams[$name]
             : null;
+    }
+
+    protected static function getMime(string $contentType) : string
+    {
+        return preg_match('#^([^;]+)#', $contentType, $matches)
+            ? trim(strtolower($matches[1]))
+            : $contentType;
     }
 
     protected function getConstructorParameters() 
