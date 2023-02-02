@@ -18,6 +18,20 @@ class Stream implements StreamInterface
         return $this->getContents();
     }
 
+    public function __serialize() : array
+    {
+        return [
+            'content' => $this->__toString()
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $r = fopen('php://memory', 'r+');
+        fwrite($r, $data['content']);
+        $this->resource = $r;
+    }
+
     public function close() 
     {
         fclose($this->resource);
