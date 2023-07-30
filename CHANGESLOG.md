@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.1 - 2023-07-30
+### Fixed
+- [issue 1](https://github.com/adinan-cenci/psr-7/issues/1): `Stream::getSize()` return 0 when measuring `php://input`.
+
+---
+
 ## 1.1.0 - 2023-02-02
 ### Added
 - Added the ability of serializing `Stream` objects.
