@@ -47,7 +47,18 @@ class Stream implements StreamInterface
     public function getSize() 
     {
         $info = fstat($this->resource);
-        return $info ? $info['size'] : null;
+        if (isset($info['size'])) {
+            return $info['size'];
+        }
+
+        $size = 0;
+        while ($content = fread($this->resource, 100)) {
+            $size += strlen($content);
+        }
+
+        rewind($this->resource);
+
+        return $size;
     }
 
     public function tell() 
