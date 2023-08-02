@@ -133,9 +133,30 @@ class Stream implements StreamInterface
             throw new \RuntimeException('Stream is not readable');
         }
 
-        return $length > 0
-            ? fread($this->resource, $length)
-            : '';
+        $contents  = '';
+
+        if ($length <= 0) {
+            return $contents;
+        }
+
+        $chunkSize = 8192;
+        $bytesRead = 0;
+
+        while ($bytesRead < $length) {
+            $nextStretch = ($bytesRead + $chunkSize) < $length
+                ? $chunkSize
+                : $length - $bytesRead;
+
+            $chunk = fread($this->resource, $nextStretch);
+            $contents .= $chunk;
+            $bytesRead += strlen($chunk);
+
+            if (empty($chunk)) {
+                break;
+            }
+        }
+
+        return $contents;
     }
 
     public function getContents() 
