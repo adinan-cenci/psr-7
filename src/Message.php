@@ -30,7 +30,7 @@ abstract class Message implements MessageInterface
 
     public function withProtocolVersion($version) 
     {
-        return $this->instantiate(['getProtocolVersion' => $version]);
+        return $this->instantiate(['protocolVersion' => $version]);
     }
 
     public function getHeaders() 
