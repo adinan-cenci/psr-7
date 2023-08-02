@@ -52,7 +52,9 @@ class Stream implements StreamInterface
         }
 
         $size = 0;
-        while ($content = fread($this->resource, 100)) {
+        $chunkSize = 8192;
+
+        while ($content = fread($this->resource, $chunkSize)) {
             $size += strlen($content);
         }
 
