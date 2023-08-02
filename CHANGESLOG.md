@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.2 - 2023-08-02
+### Fixed
+- [issue 3](https://github.com/adinan-cenci/psr-7/issues/3): `Stream::read($length)` will not return the specified length.
+- [issue 4](https://github.com/adinan-cenci/psr-7/issues/4): Error when calling `Message::withProtocolVersion()`.
+- [issue 7](https://github.com/adinan-cenci/psr-7/issues/7): Small improvement on `Stream::getSize()`.
+
+---
+
 ## 1.1.1 - 2023-07-30
 ### Fixed
 - [issue 1](https://github.com/adinan-cenci/psr-7/issues/1): `Stream::getSize()` return 0 when measuring `php://input`.
