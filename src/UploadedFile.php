@@ -66,7 +66,7 @@ class UploadedFile implements UploadedFileInterface
             throw new \RuntimeException('Directory ' . $directory . ' is not writable');
         }
 
-        $this->stream
+        isset($this->stream)
             ? $this->moveStream($targetPath)
             : $this->moveFile($targetPath);
 
