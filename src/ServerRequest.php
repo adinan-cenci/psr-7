@@ -151,7 +151,7 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
     {
         return isset($this->queryParams[$name])
             ? $this->queryParams[$name]
-            : null;
+            : $default;
     }
 
     /**
@@ -167,9 +167,9 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
      */
     public function cookie(string $name, $default = null) 
     {
-        return isset($this->queryParams[$name])
-            ? $this->queryParams[$name]
-            : null;
+        return isset($this->cookieParams[$name])
+            ? $this->cookieParams[$name]
+            : $default;
     }
 
     /**
@@ -187,7 +187,7 @@ class ServerRequest extends Request implements ServerRequestInterface, MessageIn
     {
         return isset($this->serverParams[$name])
             ? $this->serverParams[$name]
-            : null;
+            : $default;
     }
 
     protected static function getMime(string $contentType) : string
