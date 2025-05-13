@@ -1,4 +1,5 @@
 <?php
+
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\MessageInterface;
@@ -6,16 +7,51 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
-class Request extends Message implements MessageInterface, RequestInterface 
+class Request extends Message implements MessageInterface, RequestInterface
 {
+    /**
+     * The message's request target.
+     */
     protected ?string $target = null;
 
+    /**
+     * The HTTP method.
+     *
+     * @var string
+     */
     protected ?string $method = null;
 
+    /**
+     * The URI of the message.
+     *
+     * @var null|Psr\Http\Message\UriInterface
+     */
     protected ?UriInterface $uri = null;
 
-    public function __construct(string $protocolVersion = '1.0', array $headers = [], ?StreamInterface $body = null, string $target = '', string $method = 'GET', ?UriInterface $uri = null) 
-    {
+    /**
+     * Constructor.
+     *
+     * @param string $protocolVersion
+     *   The version of the HTTP protocol.
+     * @param array $headers
+     *   HTTP headers.
+     * @param null|Psr\Http\Message\StreamInterface $body
+     *   The body of the message.
+     * @param string $target
+     *   The message's request target.
+     * @param string $method
+     *   The HTTP method.
+     * @param null|Psr\Http\Message\UriInterface $uri
+     *   The URI of the message.
+     */
+    public function __construct(
+        string $protocolVersion = '1.0',
+        array $headers = [],
+        ?StreamInterface $body = null,
+        string $target = '',
+        string $method = 'GET',
+        ?UriInterface $uri = null
+    ) {
         parent::__construct($protocolVersion, $headers, $body);
 
         $this->validateMethod($method);
@@ -25,7 +61,10 @@ class Request extends Message implements MessageInterface, RequestInterface
         $this->uri    = $uri ?? new Uri();
     }
 
-    public function getRequestTarget() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getRequestTarget()
     {
         if ($this->target) {
             return $this->target;
@@ -41,8 +80,8 @@ class Request extends Message implements MessageInterface, RequestInterface
 
         $target = $this->uri->getPath();
 
-        $target = $target 
-            ? '/' . ltrim($target, '/') 
+        $target = $target
+            ? '/' . ltrim($target, '/')
             : '/';
 
         if ($query = $this->uri->getQuery()) {
@@ -52,39 +91,43 @@ class Request extends Message implements MessageInterface, RequestInterface
         return $target;
     }
 
-    public function withRequestTarget($requestTarget) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withRequestTarget($requestTarget)
     {
         return $this->instantiate(['target' => $requestTarget]);
     }
 
-    public function getMethod() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getMethod()
     {
         return $this->method;
     }
 
-    public function withMethod($method) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withMethod($method)
     {
         $this->validateMethod($method);
         return $this->instantiate(['method' => $method]);
     }
 
-    public function getUri() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getUri()
     {
         return $this->uri;
     }
 
-    /*
-     * - If the Host header is missing or empty, and the new URI contains
-     *   a host component, this method MUST update the Host header in the returned
-     *   request.
-     * - If the Host header is missing or empty, and the new URI does not contain a
-     *   host component, this method MUST NOT update the Host header in the returned
-     *   request.
-     * - If a Host header is present and non-empty, this method MUST NOT update
-     *   the Host header in the returned request.
+    /**
+     * {@inheritdoc}
      */
-
-    public function withUri(UriInterface $uri, $preserveHost = false) 
+    public function withUri(UriInterface $uri, $preserveHost = false)
     {
         $headers    = $this->headers;
         $hasHost    = (bool) self::arrayGetKey($headers, 'host');
@@ -93,11 +136,9 @@ class Request extends Message implements MessageInterface, RequestInterface
         if ($preserveHost) {
             if (!$hasHost && $uri->getHost()) {
                 $updateHost = true;
-            }
-            else if (!$hasHost && !$uri->getHost()) {
+            } elseif (!$hasHost && !$uri->getHost()) {
                 $updateHost = false;
-            }
-            else if ($hasHost) {
+            } elseif ($hasHost) {
                 $updateHost = false;
             }
         }
@@ -109,7 +150,19 @@ class Request extends Message implements MessageInterface, RequestInterface
         return $this->instantiate(['uri' => $uri, 'headers' => $headers]);
     }
 
-    protected function validateMethod($method) 
+    /**
+     * Validates a HTTP method.
+     *
+     * @param string $method
+     *   String to validate.
+     *
+     * @throws \InvalidArgumentException
+     *   If the method is not valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateMethod($method)
     {
         if (! is_string($method)) {
             throw new \InvalidArgumentException('The method parameter must be a string');
@@ -124,11 +177,14 @@ class Request extends Message implements MessageInterface, RequestInterface
         throw new \InvalidArgumentException('Unrecognized "' . $method . '" method');
     }
 
-    protected function getConstructorParameters() 
+    /**
+     * {@inheritdoc}
+     */
+    protected function getConstructorParameters()
     {
         return [
-            'protocolVersion' => $this->protocolVersion, 
-            'headers'         => $this->headers, 
+            'protocolVersion' => $this->protocolVersion,
+            'headers'         => $this->headers,
             'body'            => $this->body,
             'target'          => $this->target,
             'method'          => $this->method,

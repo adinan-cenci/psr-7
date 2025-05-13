@@ -1,21 +1,50 @@
 <?php
+
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
-abstract class Message implements MessageInterface 
+abstract class Message implements MessageInterface
 {
     use FunctionalInstantiationTrait;
 
+    /**
+     * The version of the HTTP protocol.
+     *
+     * @var string
+     */
     protected string $protocolVersion = '1.0';
 
+    /**
+     * HTTP headers.
+     *
+     * @var array
+     */
     protected array $headers = [];
 
+    /**
+     * The body of the message.
+     *
+     * @var null|Psr\Http\Message\StreamInterface
+     */
     protected ?StreamInterface $body = null;
 
-    public function __construct(string $protocolVersion = '1.0', array $headers = [], ?StreamInterface $body = null) 
-    {
+    /**
+     * Constructor.
+     *
+     * @param string $protocolVersion
+     *   The version of the HTTP protocol.
+     * @param array $headers
+     *   HTTP headers.
+     * @param null|Psr\Http\Message\StreamInterface $body
+     *   The body of the message.
+     */
+    public function __construct(
+        string $protocolVersion = '1.0',
+        array $headers = [],
+        ?StreamInterface $body = null
+    ) {
         $this->validateHeaders($headers);
 
         $this->protocolVersion = $protocolVersion;
@@ -23,38 +52,59 @@ abstract class Message implements MessageInterface
         $this->body = $body;
     }
 
-    public function getProtocolVersion() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getProtocolVersion()
     {
         return $this->protocolVersion;
     }
 
-    public function withProtocolVersion($version) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withProtocolVersion($version)
     {
         return $this->instantiate(['protocolVersion' => $version]);
     }
 
-    public function getHeaders() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeaders()
     {
         return $this->headers;
     }
 
-    public function hasHeader($name) 
+    /**
+     * {@inheritdoc}
+     */
+    public function hasHeader($name)
     {
         return self::arrayHasKey($this->headers, $name);
     }
 
-    public function getHeader($name) 
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeader($name)
     {
         return self::arrayGetKey($this->headers, $name);
     }
 
-    public function getHeaderLine($name) 
+    /**
+     * {@inheritdoc}
+     */
+    public function getHeaderLine($name)
     {
         $header = $this->getHeader($name);
         return $header ? implode(', ', $header) : '';
     }
 
-    public function withHeader($name, $value) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withHeader($name, $value)
     {
         $this->validateHeaderName($name);
         $this->validateHeaderValue($value);
@@ -64,7 +114,10 @@ abstract class Message implements MessageInterface
         return $this->instantiate(['headers' => $headers]);
     }
 
-    public function withAddedHeader($name, $value) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withAddedHeader($name, $value)
     {
         $this->validateHeaderName($name);
         $this->validateHeaderValue($value);
@@ -74,33 +127,54 @@ abstract class Message implements MessageInterface
         return $this->instantiate(['headers' => $headers]);
     }
 
-    public function withoutHeader($name) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withoutHeader($name)
     {
         $headers = $this->headers;
         $headers = self::arrayUnsetKey($headers, $name);
         return $this->instantiate(['headers' => $headers]);
     }
 
-    public function getBody() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getBody()
     {
         return $this->body;
     }
 
-    public function withBody(StreamInterface $body) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withBody(StreamInterface $body)
     {
         return $this->instantiate(['body' => $body]);
     }
 
-    protected function getConstructorParameters() 
+    /**
+     * {@inheritdoc}
+     */
+    protected function getConstructorParameters()
     {
         return [
-            'protocolVersion' => $this->protocolVersion, 
-            'headers' => $this->headers, 
+            'protocolVersion' => $this->protocolVersion,
+            'headers' => $this->headers,
             'body' => $this->body
         ];
     }
 
-    protected function validateHeaders(array $headers) 
+    /**
+     * Validates headers.
+     *
+     * @throws \InvalidArgumentException
+     *   If a single header is invalid.
+     *
+     * @return bool
+     *   True if all of them are valid.
+     */
+    protected function validateHeaders(array $headers)
     {
         foreach ($headers as $name => $value) {
             $this->validateHeaderName($name);
@@ -110,7 +184,19 @@ abstract class Message implements MessageInterface
         return true;
     }
 
-    protected function validateHeaderName($name) 
+    /**
+     * Validates a header name.
+     *
+     * @param string $name
+     *   The header name.
+     *
+     * @throws \InvalidArgumentException
+     *   If the header is not valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateHeaderName($name)
     {
         if (!is_string($name) || $name == '') {
             throw new \InvalidArgumentException('Header name parameter must be a string');
@@ -119,7 +205,19 @@ abstract class Message implements MessageInterface
         return true;
     }
 
-    protected function validateHeaderValue($value) 
+    /**
+     * Validates a header value.
+     *
+     * @param string|array $value
+     *   Header value, a string or array of strings.
+     *
+     * @throws \InvalidArgumentException
+     *   If the header is not valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateHeaderValue($value)
     {
         if (is_string($value)) {
             return true;
@@ -132,7 +230,20 @@ abstract class Message implements MessageInterface
         throw new \InvalidArgumentException('Headers must be strings or array of strings');
     }
 
-    public static function arrayGetKey(array $array, string $target) : array
+    /**
+     * Returns the value for the specified key, case insensitive.
+     *
+     * @param array $array
+     *   The array to retrieve the value from.
+     *
+     * @param string $target
+     *   The key we want to retrieve.
+     *
+     * @return array
+     *   The value alocate in the $target array key. If there is nothing
+     *   there an empty array is returned.
+     */
+    public static function arrayGetKey(array $array, string $target): array
     {
         $target = strtolower($target);
 
@@ -147,7 +258,19 @@ abstract class Message implements MessageInterface
         return [];
     }
 
-    public static function arrayHasKey(array $array, string $target) : bool
+    /**
+     * Check if the array has the specified key, case insensitive.
+     *
+     * @param array $array
+     *   The array.
+     *
+     * @param string $target
+     *   The key we want to check.
+     *
+     * @return bool
+     *   True if the key is there.
+     */
+    public static function arrayHasKey(array $array, string $target): bool
     {
         $ltarget = strtolower($target);
 
@@ -160,7 +283,25 @@ abstract class Message implements MessageInterface
         return false;
     }
 
-    public static function arrayAddKey(array $array, string $target, $value) : array
+    /**
+     * Adds a value to an array in the specified key.
+     *
+     * If there is a string in $target, it will be transformed into an array
+     * and the $value will be appended.
+     *
+     * If $value is an array, then it will be merged with the value at $target.
+     *
+     * @param array $array
+     *   The array.
+     * @param string $target
+     *   The key we want to add the value to.
+     * @param mixed $value
+     *   The value to be added.
+     *
+     * @return array
+     *   The new array with the added value.
+     */
+    public static function arrayAddKey(array $array, string $target, $value): array
     {
         $ltarget = strtolower($target);
 
@@ -175,7 +316,20 @@ abstract class Message implements MessageInterface
         return $array;
     }
 
-    public static function arraySetKey(array $array, string $target, $value) : array
+    /**
+     * Sets a value to an array in the specified key, case insensitive.
+     *
+     * @param array $array
+     *   The array.
+     * @param string $target
+     *   The key we want to set the value to.
+     * @param mixed $value
+     *   The value to be set.
+     *
+     * @return array
+     *   The new array with the new value.
+     */
+    public static function arraySetKey(array $array, string $target, $value): array
     {
         $ltarget = strtolower($target);
 
@@ -190,7 +344,18 @@ abstract class Message implements MessageInterface
         return $array;
     }
 
-    public static function arrayUnsetKey(array $array, string $target) : array
+    /**
+     * Removes a key from an array, case insensitive.
+     *
+     * @param array $array
+     *   The array.
+     * @param string $target
+     *   The key we want to remove from the $array.
+     *
+     * @return array
+     *   The new array with the key removed.
+     */
+    public static function arrayUnsetKey(array $array, string $target): array
     {
         $ltarget = strtolower($target);
 
@@ -203,12 +368,34 @@ abstract class Message implements MessageInterface
         return $array;
     }
 
-    public static function isString($value) : bool
+    /**
+     * Checks if a value is a string or a number.
+     *
+     * @todo Rename the method.
+     *
+     * @param mixed $value
+     *   The value to check.
+     *
+     * @return bool
+     *   Returns true if it is a string or a number.
+     */
+    public static function isString($value): bool
     {
         return is_string($value) || is_numeric($value);
     }
 
-    public static function isArrayOfStrings($value) : bool
+    /**
+     * Checks if a value is an array of strings and/or numbers.
+     *
+     * @todo Rename the method.
+     *
+     * @param mixed $value
+     *   The value to check.
+     *
+     * @return bool
+     *   Returns true if the array is comprised of strings and numbers only.
+     */
+    public static function isArrayOfStrings($value): bool
     {
         if (! is_array($value)) {
             return false;

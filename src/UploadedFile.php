@@ -1,36 +1,96 @@
 <?php
+
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\StreamInterface;
 
-class UploadedFile implements UploadedFileInterface 
+class UploadedFile implements UploadedFileInterface
 {
+    /**
+     * @var null|string
+     *
+     * Absolute path to the file.
+     */
     protected ?string $file = null;
 
+    /**
+     * @var Psr\Http\Message\StreamInterface
+     *
+     * Stream object.
+     */
     protected StreamInterface $stream;
 
+    /**
+     * @var null|string
+     *
+     * The client filename.
+     */
     protected ?string $name = null;
 
+    /**
+     * @var null|string
+     *
+     * The client filetype.
+     */
     protected ?string $type = null;
 
+    /**
+     * @var null|string
+     *
+     * Error associated with the uploaded file
+     */
     protected ?string $error = null;
 
+    /**
+     * @var null|int
+     *
+     * The file size in bytes.
+     */
     protected ?int $size = null;
 
+    /**
+     * @var bool
+     *
+     * Tracks wether the file has been moved.
+     */
     protected bool $moved = false;
 
+    /**
+     * @var string
+     *
+     * Absolute path the file has been moved to.
+     */
     protected string $movedTo = '';
 
-    public function __construct($subject, ?string $name = null, ?string $type = null, ?string $error = null, ?int $size = null) 
-    {
+    /**
+     * Constructor.
+     *
+     * @param resource|string|Psr\Http\Message\StreamInterface $subject
+     *   The file.
+     * @param null|string $name
+     *   The client filename.
+     * @param null|string $type
+     *   The client filetype.
+     * @param null|string $error
+     *   Error associated with the uploaded file
+     * @param null|int
+     *   The file size in bytes.
+     */
+    public function __construct(
+        $subject,
+        ?string $name = null,
+        ?string $type = null,
+        ?string $error = null,
+        ?int $size = null
+    ) {
         $this->validateSubject($subject);
 
         if (is_string($subject)) {
             $this->file = self::getAbsolutePath($subject);
-        } else if ($subject instanceof StreamInterface) {
+        } elseif ($subject instanceof StreamInterface) {
             $this->stream = $subject;
-        } else if (gettype($subject) == 'resource') {
+        } elseif (gettype($subject) == 'resource') {
             $this->stream = new Stream($subject);
         }
 
@@ -40,7 +100,10 @@ class UploadedFile implements UploadedFileInterface
         $this->size    = $size;
     }
 
-    public function getStream() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getStream()
     {
         if ($this->moved) {
             throw new \RuntimeException('File has previously been moved to ' . $this->movedTo);
@@ -49,7 +112,10 @@ class UploadedFile implements UploadedFileInterface
         return $this->stream;
     }
 
-    public function moveTo($targetPath) 
+    /**
+     * {@inheritdoc}
+     */
+    public function moveTo($targetPath)
     {
         if ($this->moved) {
             throw new \RuntimeException('File has previously been moved to ' . $this->movedTo);
@@ -73,27 +139,48 @@ class UploadedFile implements UploadedFileInterface
         $this->moved = true;
     }
 
-    public function getSize() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getSize()
     {
         return $this->size;
     }
 
-    public function getError() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getError()
     {
         return $this->error;
     }
 
-    public function getClientFilename() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getClientFilename()
     {
         return $this->name;
     }
 
-    public function getClientMediaType() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getClientMediaType()
     {
         return $this->type;
     }
 
-    protected function moveFile(string $pargetPath) 
+    /**
+     * Moves the file to the specified path.
+     *
+     * @param string $targetPath
+     *   Absolute path.
+     *
+     * @throws \RuntimeException
+     *   If the file does not exist.
+     */
+    protected function moveFile(string $pargetPath)
     {
         if (! file_exists($this->file)) {
             throw new \RuntimeException('File ' . $this->file . ' does not exist');
@@ -104,7 +191,16 @@ class UploadedFile implements UploadedFileInterface
             : rename($this->file, $pargetPath);
     }
 
-    protected function moveStream(string $targetPath) 
+    /**
+     * Moves the stream to the specified path.
+     *
+     * @param string $targetPath
+     *   Absolute path.
+     *
+     * @throws \RuntimeException
+     *   If the stream is not readable.
+     */
+    protected function moveStream(string $targetPath)
     {
         if (! $this->stream->isReadable()) {
             throw new \RuntimeException('Stream is not readable');
@@ -128,7 +224,21 @@ class UploadedFile implements UploadedFileInterface
         }
     }
 
-    protected function validateSubject($subject) 
+    /**
+     * Validates if $subject is a valid file.
+     *
+     * A resource, a stream or a file.
+     *
+     * @param resource|string|Psr\Http\Message\StreamInterface $subject
+     *   The file.
+     *
+     * @throws InvalidArgumentException
+     *   If it is not valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateSubject($subject)
     {
         if ($subject instanceof StreamInterface || gettype($subject) == 'resource') {
             return true;
@@ -141,31 +251,75 @@ class UploadedFile implements UploadedFileInterface
         throw new \InvalidArgumentException('The subject must be a file, resource or an instance of StreamInterface');
     }
 
-    protected static function isInsideTheFileSystem($path) 
+    /**
+     * Checks if $path exists in the filesystem.
+     *
+     * @param string $path
+     *   File path.
+     *
+     * @return bool
+     *   True if it exists.
+     */
+    protected static function isInsideTheFileSystem($path)
     {
         return file_exists($path);
     }
 
-    protected static function isInsideTempDir(string $path) : bool
+    /**
+     * Checks if $path is inside the system's temp dir.
+     *
+     * @param string $path
+     *   File path.
+     *
+     * @return bool
+     *   True if it is inside the temp dir.
+     */
+    protected static function isInsideTempDir(string $path): bool
     {
         return substr_count($path, sys_get_temp_dir()) > 0;
     }
 
-    protected static function getAbsolutePath(string $targetPath) : string
+    /**
+     * Makes sure a path is absolute.
+     *
+     * If it is already absolute, nothing changes.
+     *
+     * @param string $targetPath
+     *   File path.
+     *
+     * @return string
+     *   An absolute path.
+     */
+    protected static function getAbsolutePath(string $targetPath): string
     {
         return self::isAbsolutePath($targetPath)
             ? $targetPath
             : self::getCwd() . $targetPath;
     }
 
-    protected static function getCwd() : string
+    /**
+     * Returns the current working directory.
+     *
+     * @return string
+     *   Current directory.
+     */
+    protected static function getCwd(): string
     {
         $cwd = getcwd();
         $cwd = str_replace('\\', '/', $cwd);
         return rtrim($cwd, '/') . '/';
     }
 
-    protected static function isAbsolutePath(string $path) : bool
+    /**
+     * Checks if a path is absolute.
+     *
+     * @param string $path
+     *   File path.
+     *
+     * @return bool
+     *   True if $path is absolute.
+     */
+    protected static function isAbsolutePath(string $path): bool
     {
         return preg_match('/^([A-Za-z]\:)?\//', $path);
     }

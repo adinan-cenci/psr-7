@@ -25,7 +25,7 @@ Methods to quickly retrieve data from the request, think of the traditional glob
 **Response**  
 `::withAddedCookie(string $name, string $value, ?int $expires = null, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false)`
 
-it works very similarly to `setcookie()`.
+it works very similarly to PHP's `setcookie()`.
 
 <br><br><br>
 
