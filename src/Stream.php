@@ -3,6 +3,7 @@
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\SEEK_SET;
 
 class Stream implements StreamInterface
 {
@@ -60,7 +61,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function close()
+    public function close(): void
     {
         fclose($this->resource);
     }
@@ -78,7 +79,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function getSize()
+    public function getSize(): int
     {
         $info = fstat($this->resource);
         if (isset($info['size'])) {
@@ -100,7 +101,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function tell()
+    public function tell(): int
     {
         $position = ftell($this->resource);
 
@@ -114,7 +115,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function eof()
+    public function eof(): bool
     {
         return feof($this->resource);
     }
@@ -122,7 +123,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function isSeekable()
+    public function isSeekable(): bool
     {
         return $this->getMetadata('seekable');
     }
@@ -130,7 +131,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function seek($offset, $whence = SEEK_SET)
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
         if (! $this->isSeekable()) {
             throw new \RuntimeException('Stream is not seekable');
@@ -142,7 +143,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->seek(0);
     }
@@ -150,7 +151,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function isWritable()
+    public function isWritable(): bool
     {
         $mode = $this->getMetadata('mode');
 
@@ -164,7 +165,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function write($string)
+    public function write($string): int
     {
         if (! $this->isWritable()) {
             throw new \RuntimeException('Stream is not writable');
@@ -176,7 +177,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function isReadable()
+    public function isReadable(): bool
     {
         $mode = $this->getMetadata('mode');
 
@@ -190,7 +191,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function read($length)
+    public function read($length): string
     {
         if (! $this->isReadable()) {
             throw new \RuntimeException('Stream is not readable');
@@ -225,7 +226,7 @@ class Stream implements StreamInterface
     /**
      * {@inheritdoc}
      */
-    public function getContents()
+    public function getContents(): string
     {
         $length = $this->getSize();
         return $this->read($length);

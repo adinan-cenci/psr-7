@@ -64,7 +64,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function getRequestTarget()
+    public function getRequestTarget(): string
     {
         if ($this->target) {
             return $this->target;
@@ -94,7 +94,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function withRequestTarget($requestTarget)
+    public function withRequestTarget($requestTarget): RequestInterface
     {
         return $this->instantiate(['target' => $requestTarget]);
     }
@@ -102,7 +102,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->method;
     }
@@ -110,7 +110,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function withMethod($method)
+    public function withMethod($method): RequestInterface
     {
         $this->validateMethod($method);
         return $this->instantiate(['method' => $method]);
@@ -119,7 +119,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function getUri()
+    public function getUri(): UriInterface
     {
         return $this->uri;
     }
@@ -127,7 +127,7 @@ class Request extends Message implements MessageInterface, RequestInterface
     /**
      * {@inheritdoc}
      */
-    public function withUri(UriInterface $uri, $preserveHost = false)
+    public function withUri(UriInterface $uri, $preserveHost = false): RequestInterface
     {
         $headers    = $this->headers;
         $hasHost    = (bool) self::arrayGetKey($headers, 'host');

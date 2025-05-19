@@ -53,7 +53,7 @@ class Response extends Message implements ResponseInterface, MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->statusCode;
     }
@@ -61,7 +61,7 @@ class Response extends Message implements ResponseInterface, MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): ResponseInterface
     {
         $this->validateStatusCode($code);
         return $this->instantiate(['statusCode' => $code, 'reasonPhrase' => $reasonPhrase]);
@@ -70,7 +70,7 @@ class Response extends Message implements ResponseInterface, MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->reasonPhrase;
     }
@@ -98,6 +98,9 @@ class Response extends Message implements ResponseInterface, MessageInterface
      *   Whether the cookies should be accessed through java-script.
      * @param string
      *   Cross-site setting.
+     *
+     * @return Psr\Http\Message\ResponseInterface
+     *   The response with the new cookie header.
      */
     public function withAddedCookie(
         string $name,
@@ -107,7 +110,7 @@ class Response extends Message implements ResponseInterface, MessageInterface
         string $domain = '',
         bool $secure = false,
         bool $httpOnly = false
-    ) {
+    ): ResponseInterface {
         $cookie = new Cookie($name, $value, null, $expires, $path, $domain, $secure, $httpOnly);
         return $this->withAddedHeader('Set-Cookie', (string) $cookie);
     }

@@ -55,7 +55,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         return $this->protocolVersion;
     }
@@ -63,7 +63,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): MessageInterface
     {
         return $this->instantiate(['protocolVersion' => $version]);
     }
@@ -71,7 +71,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
@@ -79,7 +79,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
         return self::arrayHasKey($this->headers, $name);
     }
@@ -87,7 +87,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getHeader($name)
+    public function getHeader($name): array
     {
         return self::arrayGetKey($this->headers, $name);
     }
@@ -95,16 +95,18 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         $header = $this->getHeader($name);
-        return $header ? implode(', ', $header) : '';
+        return $header
+            ? implode(', ', $header)
+            : '';
     }
 
     /**
      * {@inheritdoc}
      */
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): MessageInterface
     {
         $this->validateHeaderName($name);
         $this->validateHeaderValue($value);
@@ -117,7 +119,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): MessageInterface
     {
         $this->validateHeaderName($name);
         $this->validateHeaderValue($value);
@@ -130,7 +132,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function withoutHeader($name)
+    public function withoutHeader($name): MessageInterface
     {
         $headers = $this->headers;
         $headers = self::arrayUnsetKey($headers, $name);
@@ -140,7 +142,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function getBody()
+    public function getBody(): StreamInterface
     {
         return $this->body;
     }
@@ -148,7 +150,7 @@ abstract class Message implements MessageInterface
     /**
      * {@inheritdoc}
      */
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): MessageInterface
     {
         return $this->instantiate(['body' => $body]);
     }

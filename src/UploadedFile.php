@@ -22,25 +22,26 @@ class UploadedFile implements UploadedFileInterface
     protected StreamInterface $stream;
 
     /**
-     * @var null|string
+     * @var string
      *
      * The client filename.
      */
-    protected ?string $name = null;
+    protected string $name = '';
 
     /**
-     * @var null|string
+     * @var string
      *
      * The client filetype.
      */
-    protected ?string $type = null;
+    protected string $type = '';
 
     /**
-     * @var null|string
+     * @var int
      *
-     * Error associated with the uploaded file
+     * Error associated with the uploaded file.
+     * Defaults to \UPLOAD_ERR_OK.
      */
-    protected ?string $error = null;
+    protected int $error = 0;
 
     /**
      * @var null|int
@@ -68,20 +69,20 @@ class UploadedFile implements UploadedFileInterface
      *
      * @param resource|string|Psr\Http\Message\StreamInterface $subject
      *   The file.
-     * @param null|string $name
+     * @param string $name
      *   The client filename.
-     * @param null|string $type
+     * @param string $type
      *   The client filetype.
-     * @param null|string $error
-     *   Error associated with the uploaded file
+     * @param int $error
+     *   Error associated with the uploaded file.
      * @param null|int
      *   The file size in bytes.
      */
     public function __construct(
         $subject,
-        ?string $name = null,
-        ?string $type = null,
-        ?string $error = null,
+        string $name = '',
+        string $type = '',
+        int $error = 0,
         ?int $size = null
     ) {
         $this->validateSubject($subject);
@@ -103,7 +104,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function getStream()
+    public function getStream(): StreamInterface
     {
         if ($this->moved) {
             throw new \RuntimeException('File has previously been moved to ' . $this->movedTo);
@@ -115,7 +116,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function moveTo($targetPath)
+    public function moveTo(string $targetPath): void
     {
         if ($this->moved) {
             throw new \RuntimeException('File has previously been moved to ' . $this->movedTo);
@@ -142,7 +143,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function getSize()
+    public function getSize(): ?int
     {
         return $this->size;
     }
@@ -150,7 +151,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function getError()
+    public function getError(): int
     {
         return $this->error;
     }
@@ -158,7 +159,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function getClientFilename()
+    public function getClientFilename(): string
     {
         return $this->name;
     }
@@ -166,7 +167,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * {@inheritdoc}
      */
-    public function getClientMediaType()
+    public function getClientMediaType(): string
     {
         return $this->type;
     }
