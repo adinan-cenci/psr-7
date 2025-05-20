@@ -264,7 +264,7 @@ class Uri implements UriInterface
     {
         $path = $this->getEncodedPath();
 
-        return $path[0] == '/'
+        return strlen($path) && $path[0] == '/'
             ? '/' . trim($path, '/')
             : $path;
     }
