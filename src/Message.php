@@ -221,11 +221,11 @@ abstract class Message implements MessageInterface
      */
     protected function validateHeaderValue($value)
     {
-        if (is_string($value)) {
+        if (self::isStringOrNumeric($value)) {
             return true;
         }
 
-        if (is_array($value) && !empty($value) && self::isArrayOfStrings($value)) {
+        if (self::isArrayOfStringsAndOrNumbers($value)) {
             return true;
         }
 
@@ -381,7 +381,7 @@ abstract class Message implements MessageInterface
      * @return bool
      *   Returns true if it is a string or a number.
      */
-    public static function isString($value): bool
+    public static function isStringOrNumeric($value): bool
     {
         return is_string($value) || is_numeric($value);
     }
@@ -397,14 +397,18 @@ abstract class Message implements MessageInterface
      * @return bool
      *   Returns true if the array is comprised of strings and numbers only.
      */
-    public static function isArrayOfStrings($value): bool
+    public static function isArrayOfStringsAndOrNumbers($value): bool
     {
         if (! is_array($value)) {
             return false;
         }
 
+        if (!$value) {
+            return false;
+        }
+
         foreach ($value as $v) {
-            if (self::isString($v)) {
+            if (self::isStringOrNumeric($v)) {
                 continue;
             }
 
