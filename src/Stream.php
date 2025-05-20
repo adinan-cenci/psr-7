@@ -1,30 +1,56 @@
 <?php
+
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\SEEK_SET;
 
-class Stream implements StreamInterface 
+class Stream implements StreamInterface
 {
+    /**
+     * File pointer resource.
+     *
+     * @var resource
+     */
     protected $resource = null;
 
-    public function __construct($resource) 
+    /**
+     * Constructor.
+     *
+     * @param resource $resource
+     *   File pointer resource.
+     */
+    public function __construct($resource)
     {
         $this->resource = $resource;
     }
 
-    public function __toString() 
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
     {
         $this->seek(0);
         return $this->getContents();
     }
 
-    public function __serialize() : array
+    /**
+     * Serializes the stream.
+     *
+     * Not part of the PSR-7.
+     */
+    public function __serialize(): array
     {
         return [
             'content' => $this->__toString()
         ];
     }
 
+    /**
+     * Unserializes the stream.
+     *
+     * Not part of the PSR-7.
+     */
     public function __unserialize(array $data): void
     {
         $r = fopen('php://memory', 'r+');
@@ -32,19 +58,28 @@ class Stream implements StreamInterface
         $this->resource = $r;
     }
 
-    public function close() 
+    /**
+     * {@inheritdoc}
+     */
+    public function close(): void
     {
         fclose($this->resource);
     }
 
-    public function detach() 
+    /**
+     * {@inheritdoc}
+     */
+    public function detach()
     {
         $resource = $this->resource;
         $this->resource = null;
         return $resource;
     }
 
-    public function getSize() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getSize(): int
     {
         $info = fstat($this->resource);
         if (isset($info['size'])) {
@@ -63,7 +98,10 @@ class Stream implements StreamInterface
         return $size;
     }
 
-    public function tell() 
+    /**
+     * {@inheritdoc}
+     */
+    public function tell(): int
     {
         $position = ftell($this->resource);
 
@@ -74,17 +112,26 @@ class Stream implements StreamInterface
         return $position;
     }
 
-    public function eof() 
+    /**
+     * {@inheritdoc}
+     */
+    public function eof(): bool
     {
         return feof($this->resource);
     }
 
-    public function isSeekable() 
+    /**
+     * {@inheritdoc}
+     */
+    public function isSeekable(): bool
     {
         return $this->getMetadata('seekable');
     }
 
-    public function seek($offset, $whence = SEEK_SET) 
+    /**
+     * {@inheritdoc}
+     */
+    public function seek(int $offset, int $whence = SEEK_SET): void
     {
         if (! $this->isSeekable()) {
             throw new \RuntimeException('Stream is not seekable');
@@ -93,23 +140,32 @@ class Stream implements StreamInterface
         fseek($this->resource, $offset, $whence);
     }
 
-    public function rewind() 
+    /**
+     * {@inheritdoc}
+     */
+    public function rewind(): void
     {
         $this->seek(0);
     }
 
-    public function isWritable() 
+    /**
+     * {@inheritdoc}
+     */
+    public function isWritable(): bool
     {
         $mode = $this->getMetadata('mode');
 
-        return substr_count($mode, 'r+') || 
-        substr_count($mode, 'w') || 
-        substr_count($mode, 'a') || 
-        substr_count($mode, 'x') || 
+        return substr_count($mode, 'r+') ||
+        substr_count($mode, 'w') ||
+        substr_count($mode, 'a') ||
+        substr_count($mode, 'x') ||
         substr_count($mode, 'c+');
     }
 
-    public function write($string) 
+    /**
+     * {@inheritdoc}
+     */
+    public function write($string): int
     {
         if (! $this->isWritable()) {
             throw new \RuntimeException('Stream is not writable');
@@ -118,18 +174,24 @@ class Stream implements StreamInterface
         return fwrite($this->resource, $string);
     }
 
-    public function isReadable() 
+    /**
+     * {@inheritdoc}
+     */
+    public function isReadable(): bool
     {
         $mode = $this->getMetadata('mode');
 
-        return substr_count($mode, 'r') || 
-        substr_count($mode, 'w+') || 
-        substr_count($mode, 'a+') || 
-        substr_count($mode, 'x+') || 
+        return substr_count($mode, 'r') ||
+        substr_count($mode, 'w+') ||
+        substr_count($mode, 'a+') ||
+        substr_count($mode, 'x+') ||
         substr_count($mode, 'c+');
     }
 
-    public function read($length) 
+    /**
+     * {@inheritdoc}
+     */
+    public function read($length): string
     {
         if (! $this->isReadable()) {
             throw new \RuntimeException('Stream is not readable');
@@ -161,15 +223,23 @@ class Stream implements StreamInterface
         return $contents;
     }
 
-    public function getContents() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getContents(): string
     {
         $length = $this->getSize();
         return $this->read($length);
     }
 
-    public function getMetadata($key = null) 
+    /**
+     * {@inheritdoc}
+     */
+    public function getMetadata($key = null)
     {
         $metadata = stream_get_meta_data($this->resource);
-        return $key ? $metadata[$key] : $metadata;
+        return $key
+            ? $metadata[$key]
+            : $metadata;
     }
 }

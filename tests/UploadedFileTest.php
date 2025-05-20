@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 namespace AdinanCenci\Psr7\Tests;
 
 use AdinanCenci\Psr7\Stream;
@@ -7,8 +8,8 @@ use Http\Psr7Test\UploadedFileIntegrationTest;
 
 class UploadedFileTest extends UploadedFileIntegrationTest
 {
-    public function createSubject() 
+    public function createSubject()
     {
-        return new UploadedFile(new Stream(fopen('php://memory', 'rw')));
+        return new UploadedFile(new Stream(fopen('php://memory', 'rw')), 'cat.jpg', 'image/jpeg');
     }
 }

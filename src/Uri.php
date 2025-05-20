@@ -1,28 +1,74 @@
 <?php
+
 namespace AdinanCenci\Psr7;
 
 use Psr\Http\Message\UriInterface;
 
-class Uri implements UriInterface 
+class Uri implements UriInterface
 {
     use FunctionalInstantiationTrait;
 
+    /**
+     * Scheme of the uri ( https, ftp, file, etc ).
+     *
+     * @var string
+     */
     protected $scheme = '';
 
+    /**
+     * Username.
+     *
+     * @var string
+     */
     protected $username = '';
 
+    /**
+     * Password.
+     *
+     * @var string
+     */
     protected $password = '';
 
+    /**
+     * Host, domain name or IP.
+     *
+     * @var string
+     */
     protected $host = '';
 
+    /**
+     * Port.
+     *
+     * @var int|null
+     */
     protected $port = null;
 
+    /**
+     * Path.
+     *
+     * @var string
+     */
     protected $path = '';
 
+    /**
+     * Query string.
+     *
+     * @var string
+     */
     protected $query = '';
 
+    /**
+     * Fragment.
+     *
+     * @var string
+     */
     protected $fragment = '';
 
+    /**
+     * List of default ports for different schemes.
+     *
+     * @var array
+     */
     protected static $standardPorts = [
         'http'  => 80,
         'https' => 443,
@@ -31,8 +77,36 @@ class Uri implements UriInterface
         'imap'  => 993,
     ];
 
-    public function __construct($scheme = '', $username = '', $password = '', $host = '', $port = null, $path = '', $query = '', $fragment = '') 
-    {
+    /**
+     * Constructor.
+     *
+     * @param string $scheme
+     *   Scheme of the uri ( https, ftp, file, etc ).
+     * @param string $username
+     *   Username.
+     * @param string $password
+     *   Password.
+     * @param string $host
+     *   Host, domain name or IP.
+     * @param int|null $port
+     *   Port.
+     * @param string $path
+     *   Path.
+     * @param string $query
+     *   Query string.
+     * @param string $fragment
+     *   Fragment.
+     */
+    public function __construct(
+        $scheme = '',
+        $username = '',
+        $password = '',
+        $host = '',
+        $port = null,
+        $path = '',
+        $query = '',
+        $fragment = ''
+    ) {
         $this->validateScheme($scheme);
         $this->validateHost($host);
         $this->validatePort($port);
@@ -50,11 +124,14 @@ class Uri implements UriInterface
         $this->fragment = $fragment;
     }
 
-    public function __toString() 
+    /**
+     * {@inheritdoc}
+     */
+    public function __toString()
     {
         $scheme     = $this->getScheme();
         $authority  = $this->getAuthority();
-        $path       = $this->getPath();
+        $path       = $this->getEncodedPath();
         $query      = $this->getQuery();
         $fragment   = $this->getFragment();
 
@@ -68,7 +145,7 @@ class Uri implements UriInterface
 
         if ($path && $authority && substr($path, 0, 1) != '/') {
             $path = '/' . $path;
-        } else if ($path && !$authority) {
+        } elseif ($path && !$authority) {
             $path = preg_replace('#^/{2,}#', '/', $path);
         }
 
@@ -83,7 +160,10 @@ class Uri implements UriInterface
         return $scheme . $authority . $path . $query . $fragment;
     }
 
-    public function getScheme() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getScheme(): string
     {
         $scheme = (string) $this->scheme;
         $scheme = trim($scheme, ':');
@@ -91,7 +171,10 @@ class Uri implements UriInterface
         return $scheme;
     }
 
-    public function getPort() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getPort(): ?int
     {
         $port = $this->port;
         $scheme = $this->getScheme();
@@ -109,25 +192,39 @@ class Uri implements UriInterface
         return $port;
     }
 
-    public function getUserInfo() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserInfo(): string
     {
-        $username = $this->username;
-        $password = $this->password;
+        $parts = [
+            $this->username,
+            $this->password
+        ];
 
-        if ($username == '') {
+        $parts = array_filter($parts, function ($p) {
+            return $p !== '';
+        });
+
+        if (!$parts) {
             return '';
         }
 
-        $userInfo = $username;
-
-        if ($password != '') {
-            $userInfo = $userInfo . ':' . $password;
+        foreach ($parts as &$p) {
+            $p = $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:\/\?]+|%(?![A-Fa-f0-9]{2}))/', $p);
         }
+
+        $userInfo = count($parts) > 1
+            ? implode(':', $parts)
+            : reset($parts);
 
         return $userInfo;
     }
 
-    public function getHost() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getHost(): string
     {
         $host = $this->host;
 
@@ -138,7 +235,10 @@ class Uri implements UriInterface
         return strtolower($host);
     }
 
-    public function getAuthority() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthority(): string
     {
         $userInfo = $this->getUserInfo();
         $host = $this->getHost();
@@ -157,25 +257,22 @@ class Uri implements UriInterface
         return $authority;
     }
 
-    public function getPath() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath(): string
     {
-        if (empty($this->path)) {
-            return '';
-        }
+        $path = $this->getEncodedPath();
 
-        // Straight up stolen from slimphp/Slim-Psr7
-        // Do not encode \w, _, -, & etc nor % encoded characters.
-        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/', $this->path);
+        return strlen($path) && $path[0] == '/'
+            ? '/' . trim($path, '/')
+            : $path;
     }
 
-    public static function isStandardPort(int $port, string $scheme) : bool
-    {
-        return isset(self::$standardPorts[$scheme])
-            ? self::$standardPorts[$scheme] == $port
-            : false;
-    }
-
-    public function getQuery() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getQuery(): string
     {
         $query = $this->query;
 
@@ -190,7 +287,10 @@ class Uri implements UriInterface
         return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $query);
     }
 
-    public function getFragment() 
+    /**
+     * {@inheritdoc}
+     */
+    public function getFragment(): string
     {
         $fragment = $this->fragment;
 
@@ -203,71 +303,159 @@ class Uri implements UriInterface
         return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/', $fragment);
     }
 
-    public function withScheme($scheme) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withScheme(string $scheme): UriInterface
     {
         $this->validateScheme($scheme);
         return $this->instantiate(['scheme' => $scheme]);
     }
 
-    public function withUserInfo($username, $password = null) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withUserInfo($username, $password = null): UriInterface
     {
         $password = (string) $password;
         return $this->instantiate(['username' => $username, 'password' => $password]);
     }
 
-    public function withHost($host) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withHost($host): UriInterface
     {
         $this->validateHost($host);
         return $this->instantiate(['host' => $host]);
     }
 
-    public function withPort($port) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withPort($port): UriInterface
     {
         $this->validatePort($port);
         return $this->instantiate(['port' => $port]);
     }
 
-    public function withPath($path) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withPath($path): UriInterface
     {
         $this->validatePath($path);
         return $this->instantiate(['path' => $path]);
     }
 
-    public function withQuery($query) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withQuery($query): UriInterface
     {
         $this->validateQuery($query);
         return $this->instantiate(['query' => $query]);
     }
 
-    public function withFragment($fragment) 
+    /**
+     * {@inheritdoc}
+     */
+    public function withFragment($fragment): UriInterface
     {
         $this->validateFragment($fragment);
         return $this->instantiate(['fragment' => $fragment]);
     }
 
-    public static function isValidHost($host) : bool
+    /**
+     * Checks if a given port is the standard one for the specified scheme.
+     *
+     * @param int $port
+     *   Network port.
+     * @param string scheme
+     *   Network scheme.
+     *
+     * @return bool
+     *   True if port matches the scheme.
+     */
+    public static function isStandardPort(int $port, string $scheme): bool
+    {
+        return isset(self::$standardPorts[$scheme])
+            ? self::$standardPorts[$scheme] == $port
+            : false;
+    }
+
+    /**
+     * Validates if a string is a valid host.
+     *
+     * Hostname or IP number.
+     *
+     * @param string $host
+     *   Host.
+     *
+     * @return bool
+     *   Returns true if it is valid.
+     */
+    public static function isValidHost($host): bool
     {
         return self::isValidHostName($host) || self::isValidIp($host);
     }
 
-    public static function isValidHostName($hostname) : bool
+    /**
+     * Validates if a string is a valid hostname.
+     *
+     * @param string $hostname
+     *   Hostname.
+     *
+     * @return bool
+     *   Returns true if it is valid.
+     */
+    public static function isValidHostName($hostname): bool
     {
         return (bool) filter_var($hostname, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME);
     }
 
-    public static function isValidIp($ip) : bool
+    /**
+     * Validates if a string is a valid IP.
+     *
+     * @param string $ip
+     *   IP number.
+     *
+     * @return bool
+     *   Returns true if it is valid.
+     */
+    public static function isValidIp($ip): bool
     {
         return (bool) filter_var($ip, FILTER_VALIDATE_IP);
     }
 
-    public static function getStandardPort(string $scheme) : int
+    /**
+     * Returns the standard port for a given scheme.
+     *
+     * @param string $scheme
+     *   Scheme.
+     *
+     * @return bool
+     *   The port number, 0 if it does not recognize the scheme.
+     */
+    public static function getStandardPort(string $scheme): int
     {
         return isset(self::$standardPorts[$scheme])
             ? self::$standardPorts[$scheme]
             : 0;
     }
 
-    public static function parseString(string $string) : UriInterface
+    /**
+     * Parses a string into an Uri object.
+     *
+     * @param string $string
+     *   An URI.
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return Psr\Http\Message\UriInterface
+     *   The parsed object.
+     */
+    public static function parseString(string $string): UriInterface
     {
         $parsed = parse_url($string);
 
@@ -275,25 +463,62 @@ class Uri implements UriInterface
         $username   = isset($parsed['user'])     ? $parsed['user'] : '';
         $password   = isset($parsed['pass'])     ? $parsed['pass'] : '';
         $host       = isset($parsed['host'])     ? $parsed['host'] : '';
-        $port       = isset($parsed['port'])     ? (int) $parsed['port'] : NULL;
+        $port       = isset($parsed['port'])     ? (int) $parsed['port'] : null;
         $path       = isset($parsed['path'])     ? $parsed['path'] : '';
         $query      = isset($parsed['query'])    ? $parsed['query'] : '';
         $fragment   = isset($parsed['fragment']) ? $parsed['fragment'] : '';
 
-        return new self($scheme, $username, $password, $host, $port, $path, $query, $fragment);        
+        return new self($scheme, $username, $password, $host, $port, $path, $query, $fragment);
     }
 
+    /**
+     * Get the encoded URL path.
+     *
+     * @return string
+     *   The URL encoded path.
+     */
+    public function getEncodedPath(): string
+    {
+        if (empty($this->path)) {
+            return '';
+        }
+
+        // Straight up stolen from slimphp/Slim-Psr7
+        // Do not encode \w, _, -, & etc nor % encoded characters.
+        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/', $this->path);
+    }
+
+    /**
+     * URL encodes a string.
+     *
+     * @param string $regex
+     *   Regex pattern to target specific parts of the string for encoding.
+     * @param string $string
+     *   The string to be encoded.
+     *
+     * @return string
+     *   The encoded string.
+     */
     protected function urlEncode(string $regex, string $string): string
     {
-        return preg_replace_callback($regex, function ($match) 
-            {
-                return rawurlencode($match[0]);
-            },
-            $string
-        );
+        return preg_replace_callback($regex, function ($match) {
+            return rawurlencode($match[0]);
+        }, $string);
     }
 
-    protected function validateScheme($scheme) 
+    /**
+     * Validates if $scheme is a valid URI scheme.
+     *
+     * @param string $scheme.
+     *   URI scheme.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateScheme($scheme)
     {
         if (! is_string($scheme)) {
             throw new \InvalidArgumentException('Scheme must be a string');
@@ -306,7 +531,19 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function validateHost($host) 
+    /**
+     * Validates if $host is a valid host.
+     *
+     * @param string $host.
+     *   Host, domain name or IP.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateHost($host)
     {
         if (! is_string($host)) {
             throw new \InvalidArgumentException('Host must be a string');
@@ -319,7 +556,19 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function validatePort($port) 
+    /**
+     * Validates if $port is a valid port.
+     *
+     * @param int $port.
+     *   Port.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validatePort($port)
     {
         if (!is_null($port) && !is_int($port)) {
             throw new \InvalidArgumentException('Port must be null or an integer');
@@ -332,7 +581,19 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function validatePath($path) 
+    /**
+     * Validates if $path is a valid path.
+     *
+     * @param string $path.
+     *   Path.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validatePath($path)
     {
         if (! is_string($path)) {
             throw new \InvalidArgumentException('Path must be a string');
@@ -341,7 +602,19 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function validateQuery($query) 
+    /**
+     * Validates if $query is a valid query.
+     *
+     * @param string $query.
+     *   Query.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateQuery($query)
     {
         if (! is_string($query)) {
             throw new \InvalidArgumentException('Query must be a string');
@@ -350,7 +623,19 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function validateFragment($fragment) 
+    /**
+     * Validates if $fragment is a valid fragment.
+     *
+     * @param string $fragment.
+     *   Fragment.
+     *
+     * @throws \InvalidArgumentException
+     *   If it isn't valid.
+     *
+     * @return bool
+     *   True if it is valid.
+     */
+    protected function validateFragment($fragment)
     {
         if (! is_string($fragment)) {
             throw new \InvalidArgumentException('Fragment must be a string');
@@ -359,7 +644,10 @@ class Uri implements UriInterface
         return true;
     }
 
-    protected function getConstructorParameters() 
+    /**
+     * {@inheritdoc}
+     */
+    protected function getConstructorParameters()
     {
         return [
             'scheme'   => $this->scheme,
