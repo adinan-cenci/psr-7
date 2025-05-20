@@ -131,7 +131,7 @@ class Uri implements UriInterface
     {
         $scheme     = $this->getScheme();
         $authority  = $this->getAuthority();
-        $path       = $this->getPath();
+        $path       = $this->getEncodedPath();
         $query      = $this->getQuery();
         $fragment   = $this->getFragment();
 
@@ -197,18 +197,26 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): string
     {
-        $username = $this->username;
-        $password = $this->password;
+        $parts = [
+            $this->username,
+            $this->password
+        ];
 
-        if ($username == '') {
+        $parts = array_filter($parts, function ($p) {
+            return $p !== '';
+        });
+
+        if (!$parts) {
             return '';
         }
 
-        $userInfo = $username;
-
-        if ($password != '') {
-            $userInfo = $userInfo . ':' . $password;
+        foreach ($parts as &$p) {
+            $p = $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:\/\?]+|%(?![A-Fa-f0-9]{2}))/', $p);
         }
+
+        $userInfo = count($parts) > 1
+            ? implode(':', $parts)
+            : reset($parts);
 
         return $userInfo;
     }
@@ -254,13 +262,11 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        if (empty($this->path)) {
-            return '';
-        }
+        $path = $this->getEncodedPath();
 
-        // Straight up stolen from slimphp/Slim-Psr7
-        // Do not encode \w, _, -, & etc nor % encoded characters.
-        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/', $this->path);
+        return $path[0] == '/'
+            ? '/' . trim($path, '/')
+            : $path;
     }
 
     /**
@@ -463,6 +469,23 @@ class Uri implements UriInterface
         $fragment   = isset($parsed['fragment']) ? $parsed['fragment'] : '';
 
         return new self($scheme, $username, $password, $host, $port, $path, $query, $fragment);
+    }
+
+    /**
+     * Get the encoded URL path.
+     *
+     * @return string
+     *   The URL encoded path.
+     */
+    public function getEncodedPath(): string
+    {
+        if (empty($this->path)) {
+            return '';
+        }
+
+        // Straight up stolen from slimphp/Slim-Psr7
+        // Do not encode \w, _, -, & etc nor % encoded characters.
+        return $this->urlEncode('/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/', $this->path);
     }
 
     /**

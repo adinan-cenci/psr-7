@@ -10,6 +10,6 @@ class UploadedFileTest extends UploadedFileIntegrationTest
 {
     public function createSubject()
     {
-        return new UploadedFile(new Stream(fopen('php://memory', 'rw')));
+        return new UploadedFile(new Stream(fopen('php://memory', 'rw')), 'cat.jpg', 'image/jpeg');
     }
 }
