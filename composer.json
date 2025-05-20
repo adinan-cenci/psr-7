@@ -10,10 +10,12 @@
             "AdinanCenci\\Psr7\\Tests\\": "tests/"
         }
     },
+    "require": {
+        "psr/http-message": "^2"
+    },
     "require-dev": {
         "php-http/psr7-integration-tests": "^1.4",
-        "guzzlehttp/psr7": "^2.7",
-        "psr/http-message": "^2"
+        "guzzlehttp/psr7": "^2.7"
     },
     "scripts": {
         "unit-tests": [
