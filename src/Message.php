@@ -49,6 +49,11 @@ abstract class Message implements MessageInterface
 
         $this->protocolVersion = $protocolVersion;
         $this->headers = $headers;
+
+        if (!$body) {
+            $body = new Stream(fopen('php://memory', 'r+'));
+        }
+
         $this->body = $body;
     }
 
