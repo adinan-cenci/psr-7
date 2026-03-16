@@ -13,19 +13,35 @@ Because I wanted, that's why.
 Besides implementing PSR-7, there is other methods to make things a little easier.
 
 **ServerRequest**  
-`::post($name, $default = null)`  
-`::get($name, $default = null)`  
-`::cookie($name, $default = null)`  
-`::server($name, $default = null)`
+
+```php
+$fallback = null;
+
+$request->post($name, $fallback);
+$request->get($name, $fallback);
+$request->cookie($name, $fallback);
+$request->server($name, $fallback);
+```
 
 Methods to quickly retrieve data from the request, think of the traditional globals: `$_POST`, `$_GET`, `$_COOKIE` and `$_SERVER`.
 
+**Response**
 
+```php
+$response = $response->withAddedCookie(
+    'cookie_name',
+    $cookieValue,
+    $twentyFourHours,         // Max age.
+    $now + $twentyFourHours,  // Expiration, accepts DateTime objects as well.
+    '/',                      // Path.
+    'my-domain.com',          // Domain.
+    true,                     // Secure.
+    true,                     // Http only.
+    'Strict'                  // Same site.
+);
+```
 
-**Response**  
-`::withAddedCookie(string $name, string $value, ?int $expires = null, string $path = '', string $domain = '', bool $secure = false, bool $httpOnly = false)`
-
-it works very similarly to PHP's `setcookie()`.
+A method to help compose cookies.
 
 <br><br><br>
 
