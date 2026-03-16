@@ -84,19 +84,20 @@ class Response extends Message implements ResponseInterface, MessageInterface
      *   The name of the cookie.
      * @param string $value
      *   The value of the cookie.
-     * @param int|null
-     *   Max age of the cookies in seconds.
-     * @param \DateTime|int|null
+     * @param int|null $maxAge
+     *   Max age of the cookie in seconds.
+     * @param \DateTime|int|null $expires
      *   The date the cookie is supposed to expire.
-     * @param string
-     *   Specific URL path the cookie should be accessible to.
-     * @param string
+     *   It accepts a timestamp or a \DateTime object.
+     * @param string $path
+     *   Specific URI path the cookie should be accessible to.
+     * @param string $domain
      *   Domain the cookies should be accessible to.
-     * @param bool
-     *   Whether the cookie should be sent over ssl only.
-     * @param bool
-     *   Whether the cookies should be accessed through java-script.
-     * @param string
+     * @param bool $secure
+     *   Whether the cookie should be sent over SSL only.
+     * @param bool $httpOnly
+     *   Whether the cookies should be accessible through java-script.
+     * @param string $sameSite
      *   Cross-site setting.
      *
      * @return Psr\Http\Message\ResponseInterface
@@ -105,13 +106,15 @@ class Response extends Message implements ResponseInterface, MessageInterface
     public function withAddedCookie(
         string $name,
         string $value,
-        ?int $expires = null,
+        ?int $maxAge = null,
+        mixed $expires = null,
         string $path = '',
         string $domain = '',
         bool $secure = false,
-        bool $httpOnly = false
+        bool $httpOnly = false,
+        string $sameSite = ''
     ): ResponseInterface {
-        $cookie = new Cookie($name, $value, null, $expires, $path, $domain, $secure, $httpOnly);
+        $cookie = new Cookie($name, $value, $maxAge, $expires, $path, $domain, $secure, $httpOnly, $sameSite);
         return $this->withAddedHeader('Set-Cookie', (string) $cookie);
     }
 
