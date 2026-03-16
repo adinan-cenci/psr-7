@@ -81,20 +81,20 @@ class Cookie
      *   The name of the cookie.
      * @param string $value
      *   The value of the cookie.
-     * @param int|null
+     * @param int|null $maxAge
      *   Max age of the cookie in seconds.
-     * @param \DateTime|int|null
+     * @param \DateTime|int|null $expires
      *   The date the cookie is supposed to expire.
      *   It accepts a timestamp or a \DateTime object.
-     * @param string
+     * @param string $path
      *   Specific URI path the cookie should be accessible to.
-     * @param string
+     * @param string $domain
      *   Domain the cookies should be accessible to.
-     * @param bool
+     * @param bool $secure
      *   Whether the cookie should be sent over SSL only.
-     * @param bool
+     * @param bool $httpOnly
      *   Whether the cookies should be accessible through java-script.
-     * @param string
+     * @param string $sameSite
      *   Cross-site setting.
      */
     public function __construct(
